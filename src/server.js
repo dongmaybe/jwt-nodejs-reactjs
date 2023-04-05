@@ -4,6 +4,7 @@ import initWebRoutes from "./routes/web";
  
 require("dotenv").config();
 import bodyParser from  'body-parser';
+//import connection from "./configs/connectDB";
 const app = express();
 
 // config view engine
@@ -12,6 +13,9 @@ configViewEngine (app);
 // config  body-parse
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// test connet'
+//connection();
 
 //init web router
 const PORT =process.env.PORT||8080;

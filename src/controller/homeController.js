@@ -1,40 +1,53 @@
-import mysql  from 'mysql2';
-
-// create the connection to database
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  database: 'jwt'   
-}); 
+import userService from '../service/userService';
 
 const handleHelloWorld =(req,res) =>{
-    const name =" DONG";
-    return   res.render('home.ejs',{name});
+    return   res.render('home.ejs',);
 }
 
-const handleUserPage =( req,res)=> {
-    // model   => get   data from database
-
-    return res.render('user.ejs');
+const handleUserPage =async( req,res)=> {   
+    let UserList = await userService.getUserList();
+    //await userService.deleteUser(5);
+    return res.render('user.ejs',{UserList});
 }
 
 const   handCreateNewUser =(req,res)=>{
     let username = req.body.username;
     let password =req.body.password;
     let email= req.body.email;
-    connection.query(
-        '    INSERT INTO users (email, password,username ) VALUES (?,?,?)',[email, password,username],
-        function(err, results, fields) {
-            if(err){
-                console.log(err)
-            }
-          console.log(results); // results contains rows returned by server
-          
-        }
-      );
-    console.log(">>> check  request : " ,req.body)
-    return res.send(" dang thuc hien ");
+       userService.createNewUser(email,password,username);
+    return  res.redirect('/user');  
+
+    
+}
+const   handDeleteUser=async(req, res)=> { 
+    //console.log(" check check id: ",req.params.id);
+    await userService.deleteUser(req.params.id);
+    return res.redirect('/user');
+}
+const   getUpdateUser=async(req, res)=> { 
+    //console.log(" check check id: ",req.params.id);
+   // await userService.deleteUser(req.params.id);
+   let id=req.params.id;
+   let user=await userService.getUserbyID(id);
+
+   let userdata ={};
+   if (user &&user.length>0)
+   {
+    userdata=user[0];
+   }
+    return res.render('user-update.ejs',{userdata});
+}
+const hendUpdateUser = async(req,res)=>{
+    let email = req.body.email;
+    let username = req.body.username;
+    let password = req.body.password;
+    let id=req.body.id;
+    //console.log("check " ,req.body);
+    await userService.updataUserInfor(email,username,password,id);
+    return res.redirect('/user');
+
+
 }
 module.exports ={
-    handleHelloWorld,handleUserPage,handCreateNewUser
+    handleHelloWorld,handleUserPage,handCreateNewUser,handDeleteUser,getUpdateUser,hendUpdateUser
 }
